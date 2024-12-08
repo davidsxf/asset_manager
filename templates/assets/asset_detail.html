@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+    <ul>
+        <li><a href="{% url 'assets:list' %}">资产管理</a></li>
+        <li class="is-active"><a href="#" aria-current="page">{{ asset.name }}</a></li>
+    </ul>
+</nav>
+
+<div class="box">
+    <div class="columns">
+        <div class="column">
+            <h1 class="title">{{ asset.name }}</h1>
+            <span class="tag 
+                {% if asset.status == 'ACTIVE' %}is-success
+                {% elif asset.status == 'MAINTENANCE' %}is-warning
+                {% elif asset.status == 'INACTIVE' %}is-light
+                {% else %}is-danger{% endif %}">
+                {{ asset.get_status_display }}
+            </span>
+        </div>
+        <div class="column is-narrow">
+            <div class="buttons">
+                <a href="{% url 'assets:update' asset.pk %}" class="button is-warning">
+                    <span class="icon"><i class="fas fa-edit"></i></span>
+                    <span>编辑</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns is-multiline mt-4">
+        <div class="column is-6">
+            <div class="field">
+                <label class="label">IP地址</label>
+                <p>{{ asset.ip_address }}</p>
+            </div>
+        </div>
+        <div class="column is-6">
+            <div class="field">
+                <label class="label">MAC地址</label>
+                <p>{{ asset.mac_address|default:"--" }}</p>
+            </div>
+        </div>
+        <div class="column is-6">
+            <div class="field">
+                <label class="label">资产类型</label>
+                <p>{{ asset.get_asset_type_display }}</p>
+            </div>
+        </div>
+        <div class="column is-6">
+            <div class="field">
+                <label class="label">所属部门</label>
+                <p>{{ asset.department.name }}</p>
+            </div>
+        </div>
+        <div class="column is-6">
+            <div class="field">
+                <label class="label">位置</label>
+                <p>{{ asset.location }}</p>
+            </div>
+        </div>
+        <div class="column is-6">
+            <div class="field">
+                <label class="label">采购日期</label>
+                <p>{{ asset.purchase_date|default:"--" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">描述</label>
+        <div class="content">
+            {{ asset.description|linebreaks|default:"暂无描述" }}
+        </div>
+    </div>
+
+    <!-- 资产详细信息 -->
+    <div class="columns is-multiline">
+        <div class="column is-12">
+            <div class="tabs">
+                <ul>
+                    <li class="is-active"><a>漏洞信息</a></li>
+                    <li><a>维护记录</a></li>
+                    <li><a>连接关系</a></li>
+                </ul>
+            </div>
+            
+            <!-- 漏洞信息表格 -->
+            <table class="table is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>漏洞名称</th>
+                        <th>危险等级</th>
+                        <th>状态</th>
+                        <th>发现时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vuln in asset.vulnerability_set.all %}
+                    <tr>
+                        <td>{{ vuln.title }}</td>
+                        <td>
+                            <span class="tag {% if vuln.severity == 'HIGH' %}is-danger
+                                           {% elif vuln.severity == 'MEDIUM' %}is-warning
+                                           {% else %}is-info{% endif %}">
+                                {{ vuln.get_severity_display }}
+                            </span>
+                        </td>
+                        <td>{{ vuln.get_status_display }}</td>
+                        <td>{{ vuln.discovered_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="has-text-centered">暂无漏洞记录</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 系统信息 -->
+<div class="box">
+    <h2 class="subtitle">系统信息</h2>
+    <div class="columns is-multiline is-size-7">
+        <div class="column is-6">
+            <p><strong>创建人：</strong>{{ asset.created_by.get_full_name }}</p>
+            <p><strong>创建时间：</strong>{{ asset.created_at|date:"Y-m-d H:i" }}</p>
+        </div>
+        <div class="column is-6">
+            <p><strong>最后更新：</strong>{{ asset.updated_at|date:"Y-m-d H:i" }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

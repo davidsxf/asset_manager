@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="columns is-multiline">
+    <!-- 资产总览卡片 -->
+    <div class="column is-3">
+        <div class="box has-text-centered">
+            <p class="heading">资产总数</p>
+            <p class="title">{{ total_assets }}</p>
+        </div>
+    </div>
+    
+    <!-- 图表展示 -->
+    <div class="column is-6">
+        <div class="box">
+            <canvas id="assetTypeChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- 资产状态分布 -->
+    <div class="column is-6">
+        <div class="box">
+            <canvas id="assetStatusChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- 部门分布 -->
+    <div class="column is-6">
+        <div class="box">
+            <canvas id="departmentChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- 月度趋势 -->
+    <div class="column is-12">
+        <div class="box">
+            <canvas id="monthlyTrendChart"></canvas>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+// 资产类型分布图
+const typeCtx = document.getElementById('assetTypeChart').getContext('2d');
+new Chart(typeCtx, {
+    type: 'pie',
+    data: {
+        labels: {{ type_labels|safe }},
+        datasets: [{
+            data: {{ type_data|safe }},
+            backgroundColor: [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: '资产类型分布'
+            }
+        }
+    }
+});
+
+// 其他图表类似...
+</script>
+{% endblock %} 
